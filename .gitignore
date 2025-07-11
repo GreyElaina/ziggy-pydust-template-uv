@@ -167,3 +167,6 @@ build.zig
 
 # IDE
 .idea/
+
+# PDM
+.pdm-python

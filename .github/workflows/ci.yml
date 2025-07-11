@@ -11,7 +11,6 @@ permissions:
   contents: read
 
 env:
-  POETRY_VERSION: "2.1.2"
   PYTHON_VERSION: "3.13"
 
 jobs:
@@ -24,40 +23,23 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Load cached Poetry installation
-        id: cached-poetry
-        uses: actions/cache@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
-          path: ~/.local
-          key: poetry-${{ runner.os }}-${{ env.POETRY_VERSION  }}-${{ steps.setup-python.outputs.python-version }}
-      - name: Install Poetry
-        id: install-poetry
-        if: steps.cached-poetry.outputs.cache-hit != 'true'
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - name: Poetry git plugin
-        run: poetry self add poetry-git-version-plugin
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
-      - name: Poetry Install
-        run: poetry install -n -v
-      - name: Poetry Build
-        run: poetry build -v
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Build
+        run: uv build
 
       - name: Ruff
-        run: poetry run ruff check .
+        run: uv run ruff check .
       - name: Ruff format
-        run: poetry run ruff format --check .
+        run: uv run ruff format --check .
       - name: Pytest
-        run: poetry run pytest
+        run: uv run pytest
       - name: Check stubs
-        run: poetry run python -m ziglang build generate-stubs -Dcheck-stubs=true
+        run: uv run python -m ziglang build generate-stubs -Dcheck-stubs=true
