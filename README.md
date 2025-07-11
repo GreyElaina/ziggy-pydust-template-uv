@@ -4,7 +4,7 @@ This repository contains a template for writing and packaging native Python exte
 
 This template includes:
 
-- A Python Poetry project.
+- A Valid `pyproject.toml` with `pdm-backend` configured.
 - A `src/` directory containing a Pydust Python module.
 - Pytest setup for running both Python and Zig unit tests.
 - GitHub Actions workflows for building and publishing the package.
